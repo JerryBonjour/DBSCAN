@@ -12,7 +12,7 @@ void expandCluster(int cluster_no, int num_npoints, int index)
 			
 			count = regionQuery(num_npoints, neigh_points[i]);
 			
-			if(count >= MIN_POINTS)
+			if(count >= min_pts)
 			{
 				num_npoints += count;
 			}
@@ -21,7 +21,7 @@ void expandCluster(int cluster_no, int num_npoints, int index)
 		if(!clusters[neigh_points[i]])
 		{
 			clusters[neigh_points[i]] = cluster_no;
-			//printf("Hi\n");
+			/* printf("Hi\n"); */
 		}
 	}
 }

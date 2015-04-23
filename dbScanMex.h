@@ -6,7 +6,7 @@
 #define EPSILON 2500
 #define MIN_POINTS 100
 
-int **data;
+double **data;
 int *clusters;
 int *visited;
 int *neigh_points;
@@ -17,7 +17,7 @@ double eps;
 int min_pts;
 
 #include"loadData.c"
-/* #include"printData.c" */
+#include"printData.c" 
 #include"expandCluster.c"
 #include"dbScan.c"
 #include"regionQuery.c"
