@@ -22,7 +22,9 @@
  #define OUT          plhs[0]
 
 #include <mex.h>
-#include "dbScanMex.h"
+#include <stdio.h>
+#include <stdlib.h>
+#include "dbScan.cpp"
 
 void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
 
@@ -50,39 +52,64 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
   }
 
   mexPrintf("*********** Starting DBSCAN ***********\n");
-  n_pts = mxGetM(IN_x);  /* get number of points */
-  dim = mxGetN(IN_x);  /* get number of dimensions */
+  const int n_pts = mxGetM(IN_x);  /* get number of points */
+  const int dim = mxGetN(IN_x);  /* get number of dimensions */
   mexPrintf("Input matrix is %d by %d\n", n_pts, dim);
-  eps = mxGetScalar(IN_eps);  /* get eps input */
+  double eps = mxGetScalar(IN_eps);  /* get eps input */
   eps = eps*eps;  /* algorithm uses squared distance */
-  min_pts = mxGetScalar(IN_min_pts);  /* get min_pts input */
+  const int min_pts = mxGetScalar(IN_min_pts);  /* get min_pts input */
   mexPrintf("Parameters are: eps %f min_pts %d\n", eps, min_pts);
 
-  loadData();
-  double *ptr = mxGetData(IN_x);
-  /* mexPrintf("Test value: %f\n", *(ptr+1)); */
-  mexCallMATLAB(0, NULL, 0, NULL, "drawnow");
-  int i,j;
-  for (j = 0 ; j < dim; j++) {    
-    for (i = 0; i < n_pts; i++) {
-      data[i][j] = *ptr;
-      ptr++;
+  double *clusters;
+  mexPrintf("Building R*-tree...");
+  switch(dim)
+  {
+    case 6:
+    {
+      dbScan<6> * clustering = new dbScan<6>(n_pts, eps, min_pts, (double*)mxGetData(IN_x));
+      //double clusters[n_pts];
+      mexPrintf("Clustering...\n");
+      mexCallMATLAB(0, NULL, 0, NULL, "drawnow");
+      clusters = clustering->cluster();
+      mexPrintf("Freeing memory...\n"); 
+      delete clustering;
     }
+    break;
+
+    case 12:
+    {
+      dbScan<12> * clustering = new dbScan<12>(n_pts, eps, min_pts, (double*)mxGetData(IN_x));
+      //double clusters[n_pts];
+      mexPrintf("Clustering...\n");
+      mexCallMATLAB(0, NULL, 0, NULL, "drawnow");
+      clusters = clustering->cluster();
+      mexPrintf("Freeing memory...\n"); 
+      delete clustering;
+    }
+    break;
+
+    case 18:
+    {
+      dbScan<18> * clustering = new dbScan<18>(n_pts, eps, min_pts, (double*)mxGetData(IN_x));
+      //double clusters[n_pts];
+      mexPrintf("Clustering...\n");
+      mexCallMATLAB(0, NULL, 0, NULL, "drawnow");
+      clusters = clustering->cluster();
+      mexPrintf("Freeing memory...\n"); 
+      delete clustering;
+    }
+    break;
+    default:
+      mexPrintf("UNSUPPORTED CLUSTERING DIMENSION\n");
   }
-  /* mexPrintf("Test value: %f\n", data[1][0]); */
-  mexPrintf("Clustering...\n");
-  mexCallMATLAB(0, NULL, 0, NULL, "drawnow");
-  dbScan();
-  mexPrintf("Done clustering!\n");
-  /* printData(); */
+  mexPrintf("*********** DBSCAN finished **********\n");
 
   const mwSize dims[] = {n_pts};  /* output array size */
   OUT = mxCreateDoubleMatrix(n_pts, 1, mxREAL); /* create output array */
   double *out_matrix = mxGetPr(OUT);
-  for(i = 0; i < n_pts; i++) {
+  for(int i = 0; i < n_pts; i++) {
     out_matrix[i] = clusters[i];  /* write to output array */
   }
-  mexPrintf("Freeing memory...\n");
-  freeData();
-  mexPrintf("*********** DBSCAN finished **********\n");
+   
+  
 }

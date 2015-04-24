@@ -1,20 +1,14 @@
-void loadData()
+//#include "dbScan.cpp"
+
+void dbScan::loadData()
 {
 	/* allocate memory for arrays */
-	data = (double**)calloc(n_pts, sizeof(double*));
 	
 	visited = (int*)calloc(n_pts, sizeof(int));
 	
 	neigh_points = (int*)calloc(n_pts*n_pts, sizeof(int));
 	
 	clusters = (int*)calloc(n_pts, sizeof(int));
-	
-	int i, j;
-	
-	for(i = 0; i < n_pts; i++)
-	{
-		data[i] = (double*)calloc(dim, sizeof(double));
-	}
 	
 	/* ******** legacy code (initially read data from file) ********
 	FILE *fp;

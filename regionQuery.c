@@ -1,4 +1,6 @@
-int regionQuery(int start, int index)
+//#include "dbScan.cpp"
+
+int dbScan::regionQuery(int start, int index)
 {
 	int i, j, count = 0;
 	double distance, temp;
