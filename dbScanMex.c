@@ -49,16 +49,18 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
         "min_pts must be type integer.");
   }
 
+  mexPrintf("*********** Starting DBSCAN ***********\n");
   n_pts = mxGetM(IN_x);  /* get number of points */
   dim = mxGetN(IN_x);  /* get number of dimensions */
-  mexPrintf("Number of points %d\n", n_pts);
+  mexPrintf("Input matrix is %d by %d\n", n_pts, dim);
   eps = mxGetScalar(IN_eps);  /* get eps input */
   eps = eps*eps;  /* algorithm uses squared distance */
   min_pts = mxGetScalar(IN_min_pts);  /* get min_pts input */
+  mexPrintf("Parameters are: eps %f min_pts %d\n", eps, min_pts);
 
   loadData();
   double *ptr = mxGetData(IN_x);
-  mexPrintf("Test value: %f\n", *(ptr+1));
+  /* mexPrintf("Test value: %f\n", *(ptr+1)); */
   mexCallMATLAB(0, NULL, 0, NULL, "drawnow");
   int i,j;
   for (j = 0 ; j < dim; j++) {    
@@ -67,7 +69,7 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
       ptr++;
     }
   }
-  mexPrintf("Test value: %f\n", data[1][0]);
+  /* mexPrintf("Test value: %f\n", data[1][0]); */
   mexPrintf("Clustering...\n");
   mexCallMATLAB(0, NULL, 0, NULL, "drawnow");
   dbScan();
@@ -80,5 +82,7 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
   for(i = 0; i < n_pts; i++) {
     out_matrix[i] = clusters[i];  /* write to output array */
   }
-
+  mexPrintf("Freeing memory...\n");
+  freeData();
+  mexPrintf("*********** DBSCAN finished **********\n");
 }

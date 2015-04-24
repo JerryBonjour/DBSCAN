@@ -1,11 +1,6 @@
 #include<stdio.h>
 #include<stdlib.h>
 
-#define FEATURES 2
-#define DATASET_SIZE 1834
-#define EPSILON 2500
-#define MIN_POINTS 100
-
 double **data;
 int *clusters;
 int *visited;
@@ -18,6 +13,7 @@ int min_pts;
 
 #include"loadData.c"
 #include"printData.c" 
+#include"freeData.c" 
 #include"expandCluster.c"
 #include"dbScan.c"
 #include"regionQuery.c"
