@@ -69,6 +69,13 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
   mexCallMATLAB(0, NULL, 0, NULL, "drawnow");
   dbScan();
   mexPrintf("Done clustering!\n");
-  printData();
+  /* printData(); */
+
+  const mwSize dims[] = {n_pts};  /* output array size */
+  OUT = mxCreateDoubleMatrix(n_pts, 1, mxREAL); /* create output array */
+  double *out_matrix = mxGetPr(OUT);
+  for(i = 0; i < n_pts; i++) {
+    out_matrix[i] = clusters[i];  /* write to output array */
+  }
 
 }
