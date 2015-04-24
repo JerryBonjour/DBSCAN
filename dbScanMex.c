@@ -1,9 +1,12 @@
 /*
- * dbScan.c - example in MATLAB External Interfaces
- *
- * Performs DBSCAN clustering on the data matrix (x) 
- * with a certain distance threshold (eps)
- * and a certain minimum point number per cluster (min_pts)
+ * Performs DBSCAN clustering
+ * Input
+ * - X: An M x N matrix where M is the number of points and N the dimensionality
+ * - eps: A distance threshold 
+ * - min_pts: Minimum number of points for a cluster
+ * 
+ * Output
+ * - An M x 1 array of class labels. 0 labels don't belong to any cluster and can be considered outliers. 
  *
  * The calling syntax is:
  *
