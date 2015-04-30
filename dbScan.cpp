@@ -61,7 +61,7 @@ class dbScan {
 			for (int j = 0; j < dim; j++) {
 				temp[j] = *(ptr+j*n_pts);
 			}
-			data.pts[i].data = temp;	//expand point vector to dim size
+			data.pts[i].data = temp;	
 			ptr++;
 		}
 		// Build tree
