@@ -55,53 +55,22 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
   const int n_pts = mxGetM(IN_x);  /* get number of points */
   const int dim = mxGetN(IN_x);  /* get number of dimensions */
   mexPrintf("Input matrix is %d by %d\n", n_pts, dim);
-  double eps = mxGetScalar(IN_eps);  /* get eps input */
-  eps = eps*eps;  /* algorithm uses squared distance */
+  double eps = mxGetScalar(IN_eps);  /* get eps input */  
+  eps = eps*eps;  // algorithm uses squared distance
   const int min_pts = mxGetScalar(IN_min_pts);  /* get min_pts input */
   mexPrintf("Parameters are: eps %f min_pts %d\n", eps, min_pts);
 
   double *clusters;
-  mexPrintf("Building R*-tree...");
-  switch(dim)
-  {
-    case 6:
-    {
-      dbScan<6> * clustering = new dbScan<6>(n_pts, eps, min_pts, (double*)mxGetData(IN_x));
-      //double clusters[n_pts];
-      mexPrintf("Clustering...\n");
-      mexCallMATLAB(0, NULL, 0, NULL, "drawnow");
-      clusters = clustering->cluster();
-      mexPrintf("Freeing memory...\n"); 
-      delete clustering;
-    }
-    break;
+  mexPrintf("Building tree...");
 
-    case 12:
-    {
-      dbScan<12> * clustering = new dbScan<12>(n_pts, eps, min_pts, (double*)mxGetData(IN_x));
-      //double clusters[n_pts];
-      mexPrintf("Clustering...\n");
-      mexCallMATLAB(0, NULL, 0, NULL, "drawnow");
-      clusters = clustering->cluster();
-      mexPrintf("Freeing memory...\n"); 
-      delete clustering;
-    }
-    break;
+  dbScan<double> * clustering = new dbScan<double>(n_pts, dim, eps, min_pts, (double*)mxGetData(IN_x));
+  //double clusters[n_pts];
+  mexPrintf("Clustering...\n");
+  mexCallMATLAB(0, NULL, 0, NULL, "drawnow");
+  clusters = clustering->cluster();
+  mexPrintf("Freeing memory...\n"); 
+  delete clustering;
 
-    case 18:
-    {
-      dbScan<18> * clustering = new dbScan<18>(n_pts, eps, min_pts, (double*)mxGetData(IN_x));
-      //double clusters[n_pts];
-      mexPrintf("Clustering...\n");
-      mexCallMATLAB(0, NULL, 0, NULL, "drawnow");
-      clusters = clustering->cluster();
-      mexPrintf("Freeing memory...\n"); 
-      delete clustering;
-    }
-    break;
-    default:
-      mexPrintf("UNSUPPORTED CLUSTERING DIMENSION\n");
-  }
   mexPrintf("*********** DBSCAN finished **********\n");
 
   const mwSize dims[] = {n_pts};  /* output array size */
