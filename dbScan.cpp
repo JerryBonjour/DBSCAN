@@ -57,10 +57,11 @@ class dbScan {
 		data.dim = dim;
 		// write data to pointcloud
 		for ( int i = 0; i < n_pts; i++) {
-			data.pts[i].data.resize(dim);	//expand point vector to dim size
+			T * temp = new T[dim];
 			for (int j = 0; j < dim; j++) {
-				data.pts[i].data[j] = *(ptr+j*n_pts);
+				temp[j] = *(ptr+j*n_pts);
 			}
+			data.pts[i].data = temp;	//expand point vector to dim size
 			ptr++;
 		}
 		// Build tree
@@ -70,9 +71,12 @@ class dbScan {
 
  	void freeData()
  	{
-  free(clusters);
-  free(visited);
-  free(neigh_points);
+	  free(clusters);
+	  free(visited);
+	  free(neigh_points);
+	  for (int i = 0; i < n_pts; i++) {
+  		delete data.pts[i].data;
+	  }
 	}
 
  	void expandCluster(int cluster_no, int num_npoints, int index)
@@ -105,10 +109,7 @@ class dbScan {
  		SearchParams params;
 
  		int count = 0;
- 		T query_pt[dim];
- 		for ( int i = 0; i < dim; i++) { // write data vector to array
-			query_pt[i] = data.pts[index].data[i];
- 		}
+ 		T * query_pt = data.pts[index].data;
 		const size_t nMatches = tree->radiusSearch(&query_pt[0],eps, ret_matches, params);	
  		for (size_t i = 0; i < nMatches; i++) {
  			int cur_idx = ret_matches[i].first;	// get index of current point

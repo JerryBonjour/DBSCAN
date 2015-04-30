@@ -6,7 +6,7 @@ struct PointCloud
 {  
   struct Point
   {
-    vector<T>  data;
+    T * data;
   };
 
   std::vector<Point>  pts;
