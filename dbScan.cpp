@@ -1,5 +1,6 @@
 #include "include/nanoflann.hpp"
 #include "nanoflann_helper.hpp"
+#include <iostream>
 // #include "loadData.c"
 // #include "freeData.c" 
 // #include "regionQuery.c"
@@ -11,20 +12,17 @@ using namespace nanoflann;
 template <typename T>
 class dbScan {
  public:
-	dbScan(const int n_pts, const int dim, const int eps, const int min_pts, double * ptr)
+	dbScan(const int n_pts, const int dim, const T eps, const int min_pts, double * ptr)
 		: n_pts(n_pts), dim(dim), eps(eps), min_pts(min_pts) {
 		this->ptr = ptr;
 		loadData();
-		
-  	
- 
 	}
 
 	~dbScan() {
 		freeData();
 	}
 
-	double * cluster() {
+	int * cluster() {
 	  
 		int next_cluster = 1, i, j, num_npoints;
 		
@@ -41,6 +39,7 @@ class dbScan {
 				}
 			}
 		}
+		return clusters;
 	  
 	}
 
@@ -55,6 +54,7 @@ class dbScan {
 		clusters = (int*)calloc(n_pts, sizeof(int));
 
 		data.pts.resize(n_pts);
+		data.dim = dim;
 		// write data to pointcloud
 		for ( int i = 0; i < n_pts; i++) {
 			data.pts[i].data.resize(dim);	//expand point vector to dim size
@@ -64,8 +64,8 @@ class dbScan {
 			ptr++;
 		}
 		// Build tree
-		index = new my_kd_tree_t(dim, data, KDTreeSingleIndexAdaptorParams(50 /* max leaf */) );
-		index->buildIndex();
+		tree = new my_kd_tree_t(dim, data, KDTreeSingleIndexAdaptorParams(20 /* max leaf */) );
+		tree->buildIndex();
 	}
 
  	void freeData()
@@ -101,8 +101,24 @@ class dbScan {
 
  	int regionQuery(int start, int index)
  	{
+ 		vector<std::pair<size_t,T> > ret_matches;
+ 		SearchParams params;
 
-		
+ 		int count = 0;
+ 		T query_pt[dim];
+ 		for ( int i = 0; i < dim; i++) { // write data vector to array
+			query_pt[i] = data.pts[index].data[i];
+ 		}
+		const size_t nMatches = tree->radiusSearch(&query_pt[0],eps, ret_matches, params);	
+ 		for (size_t i = 0; i < nMatches; i++) {
+ 			int cur_idx = ret_matches[i].first;	// get index of current point
+ 			if (cur_idx != index) {
+ 				neigh_points[start+count] = cur_idx;
+ 				count++;
+ 			}
+ 		}
+ 		// int i, j, count = 0;
+		// double distance, temp;
 		//for(i = 0; i < n_pts; i++)
 		//{
 		//	if(i != index)
@@ -124,9 +140,7 @@ class dbScan {
 		//		}
 		//	}
 		//}
-
-
-		int count = 0;
+		
 		return count;
 	}
 
@@ -135,7 +149,7 @@ class dbScan {
 	int *neigh_points;
 	
 	const int n_pts;
-	const double eps;
+	const T eps;
 	const int min_pts;	
 	const int dim;
 	double * ptr;	
@@ -145,6 +159,6 @@ class dbScan {
 		L2_Simple_Adaptor<T, PointCloud<T> > ,
 		PointCloud<T>		
 		> my_kd_tree_t;
-	my_kd_tree_t * index;
+	my_kd_tree_t * tree;
 
 };

@@ -10,6 +10,7 @@ struct PointCloud
   };
 
   std::vector<Point>  pts;
+  int dim;
 
   // Must return the number of data points
   inline size_t kdtree_get_point_count() const { return pts.size(); }
@@ -18,8 +19,7 @@ struct PointCloud
   inline T kdtree_distance(const T *p1, const size_t idx_p2,size_t /*size*/) const
   {
     T dist = 0;
-    int n_dim = pts[idx_p2].data.size();
-    for (int i = 0; i < n_dim; i++) {
+    for (int i = 0; i < dim; i++) {
       const T d = p1[i] - pts[idx_p2].data[i];
       dist += d*d;
     }    

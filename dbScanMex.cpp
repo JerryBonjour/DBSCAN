@@ -60,25 +60,24 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
   const int min_pts = mxGetScalar(IN_min_pts);  /* get min_pts input */
   mexPrintf("Parameters are: eps %f min_pts %d\n", eps, min_pts);
 
-  double *clusters;
+  int *clusters;
   mexPrintf("Building tree...");
+  mexCallMATLAB(0, NULL, 0, NULL, "drawnow");
 
   dbScan<double> * clustering = new dbScan<double>(n_pts, dim, eps, min_pts, (double*)mxGetData(IN_x));
   //double clusters[n_pts];
   mexPrintf("Clustering...\n");
   mexCallMATLAB(0, NULL, 0, NULL, "drawnow");
   clusters = clustering->cluster();
-  mexPrintf("Freeing memory...\n"); 
-  delete clustering;
 
-  mexPrintf("*********** DBSCAN finished **********\n");
-
-  const mwSize dims[] = {n_pts};  /* output array size */
   OUT = mxCreateDoubleMatrix(n_pts, 1, mxREAL); /* create output array */
   double *out_matrix = mxGetPr(OUT);
   for(int i = 0; i < n_pts; i++) {
     out_matrix[i] = clusters[i];  /* write to output array */
   }
-   
   
+  mexPrintf("Freeing memory...\n"); 
+  delete clustering;
+
+  mexPrintf("*********** DBSCAN finished **********\n");
 }
