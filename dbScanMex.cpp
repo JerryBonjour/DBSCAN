@@ -56,9 +56,9 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
   const int dim = mxGetN(IN_x);  /* get number of dimensions */
   mexPrintf("Input matrix is %d by %d\n", n_pts, dim);
   double eps = mxGetScalar(IN_eps);  /* get eps input */  
-  eps = eps*eps;  // algorithm uses squared distance
   const int min_pts = mxGetScalar(IN_min_pts);  /* get min_pts input */
   mexPrintf("Parameters are: eps %f min_pts %d\n", eps, min_pts);
+  eps = eps*eps;  // algorithm uses squared distance
 
   int *clusters;
   mexPrintf("Building tree...\n");
