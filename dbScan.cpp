@@ -30,7 +30,8 @@ class dbScan {
 			if(!visited[i]) {
 				visited[i] = 1;
 				
-				num_npoints = regionQuery(0, i);
+				QueryReturn output = regionQuery(0, i);
+				num_npoints = output.count;
 				
 				if(num_npoints > min_pts) {
 					expandCluster(next_cluster, num_npoints, i);
@@ -44,6 +45,11 @@ class dbScan {
 	}
 
  private:
+ 	struct QueryReturn {
+ 		int count;
+ 		int count_not_visited;
+ 	};
+
  	void loadData(){
 		/* allocate memory for arrays */
 		
@@ -89,10 +95,11 @@ class dbScan {
 			if(!visited[neigh_points[i]]) {
 				visited[neigh_points[i]] = 1;
 				
-				count = regionQuery(num_npoints, neigh_points[i]);
+				QueryReturn output = regionQuery(num_npoints, neigh_points[i]);
+				count = output.count;
 				
 				if(count >= min_pts) {
-					num_npoints += count;
+					num_npoints += output.count_not_visited;
 				}
 			}
 			
@@ -103,19 +110,24 @@ class dbScan {
 		}
 	}
 
- 	int regionQuery(int start, int index)
+ 	QueryReturn regionQuery(int start, int index)
  	{
  		vector<std::pair<size_t,T> > ret_matches;
  		SearchParams params;
 
- 		int count = 0;
+ 		QueryReturn output;
+ 		output.count = 0;
+ 		output.count_not_visited = 0;
  		T * query_pt = data.pts[index].data;
 		const size_t nMatches = tree->radiusSearch(&query_pt[0],eps, ret_matches, params);	
  		for (size_t i = 0; i < nMatches; i++) {
  			int cur_idx = ret_matches[i].first;	// get index of current point
  			if (cur_idx != index) {
- 				neigh_points[start+count] = cur_idx;
- 				count++;
+ 				output.count++;
+ 				if (!visited[cur_idx]) {
+ 					neigh_points[start+output.count_not_visited] = cur_idx;
+ 					output.count_not_visited++;
+ 				}
  			}
  		}
  		// int i, j, count = 0;
@@ -142,7 +154,7 @@ class dbScan {
 		//	}
 		//}
 		
-		return count;
+		return output;
 	}
 
  	int *clusters;
