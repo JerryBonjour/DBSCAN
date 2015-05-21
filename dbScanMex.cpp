@@ -18,6 +18,7 @@
  #define IN_x         prhs[0]
  #define IN_eps       prhs[1]
  #define IN_min_pts   prhs[2]
+ #define IN_verbose   prhs[3]
 
  #define OUT          plhs[0]
 
@@ -28,9 +29,14 @@
 
 void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
 
-  if(nrhs!=3) {
+  bool verbose = true;
+  if(nrhs<3) {
       mexErrMsgIdAndTxt("MyToolbox:dbScanMex:nrhs", "Three inputs required.");
       mexErrMsgIdAndTxt("MyToolbox:dbScanMex:nlhs", "One output required.");
+  }
+
+  if(nrhs>3) {
+    verbose = (bool)mxGetScalar(IN_verbose);
   }
 
   if( !mxIsDouble(IN_x) || 
@@ -47,29 +53,32 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
 
   if( !mxIsDouble(IN_min_pts) || 
      mxIsComplex(IN_min_pts)) {
-    mexErrMsgIdAndTxt("MyToolbox:dbScanMex:notDouble",
+    mexErrMsgIdAndTxt("MyToolbox:dbScanMex:notInteger",
         "min_pts must be type integer.");
   }
 
-  mexPrintf("*********** Starting DBSCAN ***********\n");
+  if (verbose) mexPrintf("*********** Starting DBSCAN ***********\n");
   const int n_pts = mxGetM(IN_x);  /* get number of points */
   const int dim = mxGetN(IN_x);  /* get number of dimensions */
-  mexPrintf("Input matrix is %d by %d\n", n_pts, dim);
+  if (verbose) mexPrintf("Input matrix is %d by %d\n", n_pts, dim);
   double eps = mxGetScalar(IN_eps);  /* get eps input */  
   const int min_pts = mxGetScalar(IN_min_pts);  /* get min_pts input */
-  mexPrintf("Parameters are: eps %f min_pts %d\n", eps, min_pts);
+  if (verbose) mexPrintf("Parameters are: eps %f min_pts %d\n", eps, min_pts);
   eps = eps*eps;  // algorithm uses squared distance
 
   int *clusters;
-  mexPrintf("Building tree...\n");
-  mexEvalString("drawnow;");
-  //mexCallMATLAB(0, NULL, 0, NULL, "drawnow");
+  if (verbose) {
+    mexPrintf("Building tree...\n");
+    mexEvalString("drawnow;");
+    //mexCallMATLAB(0, NULL, 0, NULL, "drawnow");
+  }
 
   dbScan<double> * clustering = new dbScan<double>(n_pts, dim, eps, min_pts, (double*)mxGetData(IN_x));
-  //double clusters[n_pts];
-  mexPrintf("Clustering...\n");
-  //mexCallMATLAB(0, NULL, 0, NULL, "drawnow");
-  mexEvalString("drawnow;");
+  if (verbose) {
+    mexPrintf("Clustering...\n");
+    //mexCallMATLAB(0, NULL, 0, NULL, "drawnow");
+    mexEvalString("drawnow;");
+  }
   clusters = clustering->cluster();
 
   OUT = mxCreateDoubleMatrix(n_pts, 1, mxREAL); /* create output array */
@@ -78,8 +87,8 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
     out_matrix[i] = clusters[i];  /* write to output array */
   }
   
-  mexPrintf("Freeing memory...\n"); 
+  if (verbose) mexPrintf("Freeing memory...\n"); 
   delete clustering;
 
-  mexPrintf("*********** DBSCAN finished ***********\n");
+  if (verbose) mexPrintf("*********** DBSCAN finished ***********\n");
 }
