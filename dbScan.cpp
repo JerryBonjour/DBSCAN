@@ -1,10 +1,7 @@
 #include "include/nanoflann.hpp"
 #include "nanoflann_helper.hpp"
 #include <iostream>
-// #include "loadData.c"
-// #include "freeData.c" 
-// #include "regionQuery.c"
-// #include "expandCluster.c"
+//#include <mex.h>	//use for console output when debugging
 
 using namespace std;
 using namespace nanoflann;
@@ -24,19 +21,19 @@ class dbScan {
 
 	int * cluster() {
 	  
-		int next_cluster = 1, i, j, num_npoints;
+		int next_cluster = 1, i, j, num_npoints;	//initialize cluster
 		
-		for(i = 0; i < n_pts; i++) {
-			if(!visited[i]) {
-				visited[i] = 1;
+		for(i = 0; i < n_pts; i++) {	//iterate over all points
+			if(!visited[i]) {	//enter if not yet visited
+				visited[i] = 1;	//has now been visited
 				
-				QueryReturn output = regionQuery(0, i);
-				num_npoints = output.count;
+				QueryReturn output = regionQuery(0, i);	//check neighbors
+				num_npoints = output.count;	//number of neighbors
 				
-				if(num_npoints > min_pts) {
-					expandCluster(next_cluster, num_npoints, i);
+				if(num_npoints > min_pts) {	//if enough neighbors
+					expandCluster(next_cluster, num_npoints, i);	//expand cluster
 					
-					next_cluster++;
+					next_cluster++;	//move to next cluster
 				}
 			}
 		}
@@ -55,7 +52,7 @@ class dbScan {
 		
 		visited = (int*)calloc(n_pts, sizeof(int));
 		
-		neigh_points = (int*)calloc(n_pts*n_pts, sizeof(int));
+		neigh_points = (int*)calloc(n_pts, sizeof(int));
 		
 		clusters = (int*)calloc(n_pts, sizeof(int));
 
@@ -87,25 +84,21 @@ class dbScan {
 
  	void expandCluster(int cluster_no, int num_npoints, int index)
  	{
-		clusters[index] = cluster_no;
+		clusters[index] = cluster_no;	//assign current point to cluster
 		
 		int i, count = 0;
 		
-		for(i = 0; i < num_npoints; i++) {
-			if(!visited[neigh_points[i]]) {
-				visited[neigh_points[i]] = 1;
-				
-				QueryReturn output = regionQuery(num_npoints, neigh_points[i]);
-				count = output.count;
-				
-				if(count >= min_pts) {
-					num_npoints += output.count_not_visited;
-				}
+		for(i = 0; i < num_npoints; i++) {	//loop until all points belonging to cluster visited
+
+			QueryReturn output = regionQuery(num_npoints, neigh_points[i]);	//query with point
+			count = output.count;	//get count of neighbors
+			
+			if(count >= min_pts) {	//if more than min_pts neighbors
+				num_npoints += output.count_not_visited;	//add as basepoint
 			}
 			
-			if(!clusters[neigh_points[i]]) {
-				clusters[neigh_points[i]] = cluster_no;
-				/* printf("Hi\n"); */
+			if(!clusters[neigh_points[i]]) {	//if neighbors don't have a class yet
+				clusters[neigh_points[i]] = cluster_no;	//give it current class
 			}
 		}
 	}
@@ -118,41 +111,19 @@ class dbScan {
  		QueryReturn output;
  		output.count = 0;
  		output.count_not_visited = 0;
- 		T * query_pt = data.pts[index].data;
-		const size_t nMatches = tree->radiusSearch(&query_pt[0],eps, ret_matches, params);	
- 		for (size_t i = 0; i < nMatches; i++) {
- 			int cur_idx = ret_matches[i].first;	// get index of current point
- 			if (cur_idx != index) {
- 				output.count++;
- 				if (!visited[cur_idx]) {
- 					neigh_points[start+output.count_not_visited] = cur_idx;
- 					output.count_not_visited++;
+ 		T * query_pt = data.pts[index].data;	//point to query with
+		const size_t nMatches = tree->radiusSearch(&query_pt[0],eps, ret_matches, params);	//perform radius search
+ 		for (size_t i = 0; i < nMatches; i++) {	//loop over all points inside eps radius
+ 			const int cur_idx = ret_matches[i].first;	// get index of current point
+ 			if (cur_idx != index) {	//self point is no match
+ 				output.count++;	//increment point counter
+ 				if (!visited[cur_idx]) {	//if point not yet visited
+ 					visited[cur_idx] = 1;	//marks as visited because it is now in queue
+ 					neigh_points[start+output.count_not_visited] = cur_idx;	//add to queue
+ 					output.count_not_visited++;	//increment counter
  				}
  			}
  		}
- 		// int i, j, count = 0;
-		// double distance, temp;
-		//for(i = 0; i < n_pts; i++)
-		//{
-		//	if(i != index)
-		//	{
-		//		distance = 0;
-		//	
-		//		for(j = 0; j < dim; j++)
-		//		{
-		//			temp = data[i][j] - data[index][j];
-		//		
-		//			distance += temp * temp;
-		//		}
-		//	
-		//		if(distance <= eps)
-		//		{
-		//			neigh_points[start+count] = i;
-		//		
-		//			count++;
-		//		}
-		//	}
-		//}
 		
 		return output;
 	}
