@@ -1,12 +1,10 @@
-Mex implementation of the DBSCAN clustering algorithm, adopted from https://github.com/siddharth-agrawal/DBSCAN
-
-Compile dbScanMex.cpp in Matlab to get executable mex file.
+C++ implementation of the DBSCAN clustering algorithm, adopted from https://github.com/siddharth-agrawal/DBSCAN
 
 Inputs are:
-X: A M x N matrix where M is the number of points and N the dimensionality
+points: A M x N matrix where M is the number of points and N the dimensionality
 eps: A distance threshold 
 min_pts: Minimum number of neighbors for a cluster basepoint
 verbose: optional boolean indicator for console output (default is true)
 
 The output is:
-out: An M x 1 array of class labels. 0 labels don't belong to any cluster and can be considered outliers. 
+cluster: An M x 1 vector of class labels. 0 labels don't belong to any cluster and can be considered outliers. 
