@@ -43,7 +43,7 @@ public:
   /// \param points Data matrix of clustered point with size n_points x dim.
   /// \param eps Maximum distance for a point to be considered part of a cluster.
   /// \param min_pts Minimum number of points in vincinity to be considered a base point.
-  Dbscan(const Eigen::MatrixXd& points, const double eps, const unsigned int min_pts);
+  Dbscan(const Eigen::MatrixXd& points, const double& eps, const unsigned int& min_pts);
 
   /// \brief Perform clustering and return cluster index for each point. 0 indices are outliers.
   void cluster(Eigen::VectorXi* clusters);

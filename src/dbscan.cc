@@ -2,12 +2,12 @@
 
 #include <glog/logging.h>
 
-Dbscan::Dbscan(const Eigen::MatrixXd& points, const double eps, const unsigned int min_pts) :
+Dbscan::Dbscan(const Eigen::MatrixXd& points, const double& eps, const unsigned int& min_pts) :
     points_(points), eps_(eps*eps), min_pts_(min_pts) {
   n_pts_ = points.rows();
   dim_ = points.cols();
 
-  queried_.resize(n_pts_, false);
+  queried_.assign(n_pts_, false);
 
   kd_tree_ = std::unique_ptr<my_kd_tree_t>(
         new my_kd_tree_t(dim_, points_, 20 /* max leafs */ ));
@@ -21,7 +21,7 @@ void Dbscan::cluster(Eigen::VectorXi* clusters) {
 
   unsigned int cur_cluster = 1;
 
-  for(unsigned int i = 0; i < n_pts_; i++) {
+  for(unsigned int i = 0; i < n_pts_; ++i) {
     if(!queried_[i]) {
       queried_[i] = true;
 
@@ -69,7 +69,7 @@ Dbscan::QueryReturn Dbscan::regionQuery(const unsigned int& query_index) {
   for (unsigned int i = 0; i < dim_; ++i) query_pt[i] = points_(query_index, i);
   // Perform radius search.
   const unsigned int n_matches = kd_tree_->index->radiusSearch(&query_pt[0], eps_, ret_matches, params);
-  for (unsigned int i = 0; i < n_matches; i++) {
+  for (unsigned int i = 0; i < n_matches; ++i) {
     const int cur_idx = ret_matches[i].first;
     if (cur_idx != query_index) {	// Self point is no match.
       output.count++;
