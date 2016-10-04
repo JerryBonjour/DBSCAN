@@ -1,4 +1,5 @@
-C++ implementation of the DBSCAN clustering algorithm, adopted from https://github.com/siddharth-agrawal/DBSCAN
+C++ implementation of the DBSCAN clustering algorithm, originally adopted from https://github.com/siddharth-agrawal/DBSCAN but completely rewritten.
+Uses [nanoflann](https://github.com/jlblancoc/nanoflann) for kd-tree radius search.
 
 Inputs are:
 points: A M x N matrix where M is the number of points and N the dimensionality
