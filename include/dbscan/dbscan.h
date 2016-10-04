@@ -1,4 +1,4 @@
-#include <iostream>
+#include <list>
 #include <memory>
 
 #include <Eigen/Dense>
@@ -10,31 +10,29 @@ class Dbscan {
   typedef nanoflann::KDTreeEigenMatrixAdaptor< Eigen::MatrixXd > my_kd_tree_t;
 
   struct QueryReturn {
-    int count;
-    int count_not_visited;
+    QueryReturn() : count(0) {}
+
+    unsigned int count;
+    std::list<unsigned int> new_neighbors;
   };
 
   void loadData();
 
-  void freeData();
+  void expandCluster(std::list<unsigned int>& neighbors, const unsigned int& cur_cluster);
 
-  void expandCluster(const unsigned int& cluster_no,
-                     unsigned int num_npoints,
-                     const unsigned int& index,
-                     std::vector<bool>& visited);
+  QueryReturn regionQuery(const unsigned int& query_index);
 
-  QueryReturn regionQuery(const unsigned int& start,
-                          const unsigned int& index,
-                          std::vector<bool>& visited);
+  void setCluster(const std::list<unsigned int>& indices, const unsigned int& cur_cluster);
 
   Eigen::VectorXi* clusters_;
   std::vector<bool> queried_;
-  std::vector<int> neigh_points_;
 
+  // Data variables.
   const Eigen::MatrixXd& points_;
   unsigned int n_pts_;
   unsigned int dim_;
 
+  // Clustering parameter
   const double eps_;
   const unsigned int min_pts_;
 
