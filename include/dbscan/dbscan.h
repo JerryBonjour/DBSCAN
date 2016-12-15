@@ -1,4 +1,3 @@
-#include <fstream>
 #include <limits>
 #include <list>
 
@@ -7,7 +6,7 @@
 
 #include "nanoflann/nanoflann.hpp"
 
-template <typename Derived, class Distance = nanoflann::metric_L2>
+template <typename Derived, class Distance = nanoflann::metric_L2_Simple>
 class DbscanBase {
 
   typedef Eigen::DenseBase<Derived> MatType;
@@ -46,7 +45,7 @@ class DbscanBase {
     QueryReturn output;
     // Extract query point to nanoflann format.
     std::vector<Scalar> query_pt(dim_);
-    for (unsigned int i = 0u; i < dim_; ++i) query_pt[i] = points_(query_index, i);
+    for (IndType i = 0; i < dim_; ++i) query_pt[i] = points_(query_index, i);
     // Perform radius search.
     const size_t n_matches =
         kd_tree_.index->radiusSearch(&query_pt[0], eps_, ret_matches, params_);
@@ -129,12 +128,12 @@ namespace Dbscan{
 /// \param eps Maximum distance for a point to be considered part of a cluster.
 /// \param min_pts Minimum number of points in vincinity to be considered a base point.
 /// \param clusters Pointer to vector for clustering output.
-template<typename Derived, class Distance = nanoflann::metric_L2>
+template<typename Derived, typename Distance = nanoflann::metric_L2_Simple>
 void Cluster(const Derived& points,
-             const typename Eigen::DenseBase<Derived>::Scalar& eps,
+             const typename Derived::Scalar& eps,
              const unsigned int& min_pts,
              Eigen::VectorXi* clusters) {
-  DbscanBase<Derived> clusterer(points, eps, min_pts);
+  DbscanBase<Derived, Distance> clusterer(points, eps, min_pts);
   clusterer.cluster(clusters);
 }
 
