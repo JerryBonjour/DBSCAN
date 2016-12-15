@@ -124,6 +124,11 @@ public:
 
 namespace Dbscan{
 
+/// \brief Shorthand to call DBSCAN cluster algorithm.
+/// \param points Data matrix of clustered point with size n_points x dim.
+/// \param eps Maximum distance for a point to be considered part of a cluster.
+/// \param min_pts Minimum number of points in vincinity to be considered a base point.
+/// \param clusters Pointer to vector for clustering output.
 template<typename Derived, class Distance = nanoflann::metric_L2>
 void Cluster(const Derived& points,
              const typename Eigen::DenseBase<Derived>::Scalar& eps,
